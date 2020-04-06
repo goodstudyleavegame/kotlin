@@ -1906,6 +1906,11 @@ public class DiagnosticsUsingJavacTestGenerated extends AbstractDiagnosticsUsing
                 runTest("compiler/testData/diagnostics/tests/callableReference/memberExtensionsImportedFromObjectsUnsupported.kt");
             }
 
+            @TestMetadata("noAdaptedFunctionReferencesWithApi_1_3.kt")
+            public void testNoAdaptedFunctionReferencesWithApi_1_3() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/callableReference/noAdaptedFunctionReferencesWithApi_1_3.kt");
+            }
+
             @TestMetadata("noAmbiguityWhenAllReferencesAreInapplicable.kt")
             public void testNoAmbiguityWhenAllReferencesAreInapplicable() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/callableReference/noAmbiguityWhenAllReferencesAreInapplicable.kt");
