@@ -11,7 +11,11 @@ plugins {
 val JDK_18: String by rootProject.extra
 val jarBaseName = property("archivesBaseName") as String
 
-val proguardLibraryJars by configurations.creating
+val proguardLibraryJars by configurations.creating {
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+    }
+}
 val relocatedJarContents by configurations.creating
 val embedded by configurations
 
