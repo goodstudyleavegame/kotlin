@@ -1,6 +1,5 @@
 // WITH_RUNTIME
 // IGNORE_BACKEND_FIR: JVM_IR
-// IGNORE_BACKEND: JVM_IR, JS_IR
 
 import kotlin.UninitializedPropertyAccessException
 

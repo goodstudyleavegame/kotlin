@@ -36,6 +36,10 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 class NullableFieldsForLateinitCreationLowering(val backendContext: CommonBackendContext) : DeclarationTransformer {
 
+    override fun lower(irFile: IrFile) {
+        runPostfix(true).toFileLoweringPass().lower(irFile)
+    }
+
     override fun transformFlat(declaration: IrDeclaration): List<IrDeclaration>? {
         if (declaration is IrField) {
             declaration.correspondingPropertySymbol?.owner?.let { property ->
@@ -51,6 +55,10 @@ class NullableFieldsForLateinitCreationLowering(val backendContext: CommonBacken
 
 // Transform declarations
 class NullableFieldsDeclarationLowering(val backendContext: CommonBackendContext) : DeclarationTransformer {
+
+    override fun lower(irFile: IrFile) {
+        runPostfix(true).toFileLoweringPass().lower(irFile)
+    }
 
     override fun transformFlat(declaration: IrDeclaration): List<IrDeclaration>? {
         when (declaration) {
@@ -100,6 +108,10 @@ class NullableFieldsDeclarationLowering(val backendContext: CommonBackendContext
 
 // Transform usages
 class LateinitUsageLowering(val backendContext: CommonBackendContext) : BodyLoweringPass {
+
+    override fun lower(irFile: IrFile) {
+        runOnFilePostfix(irFile, withLocalDeclarations = true)
+    }
 
     override fun lower(irBody: IrBody, container: IrDeclaration) {
         val nullableVariables = mutableMapOf<IrVariable, IrVariable>()
