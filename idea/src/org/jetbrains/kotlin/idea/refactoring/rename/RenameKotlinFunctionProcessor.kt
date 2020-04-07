@@ -63,8 +63,12 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
         return DescriptorUtils.getJvmName(descriptor)
     }
 
-    override fun findReferences(element: PsiElement): Collection<PsiReference> {
-        val allReferences = super.findReferences(element)
+    override fun findReferences(
+        element: PsiElement,
+        searchScope: SearchScope,
+        searchInCommentsAndStrings: Boolean
+    ): Collection<PsiReference> {
+        val allReferences = super.findReferences(element, searchScope, searchInCommentsAndStrings)
         return when {
             getJvmName(element) == null -> allReferences
             element is KtElement -> allReferences.filterIsInstance<KtReference>()

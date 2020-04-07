@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.idea.refactoring.rename
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
+import com.intellij.psi.search.SearchScope
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
@@ -62,11 +63,16 @@ class RenameKotlinClassifierProcessor : RenameKotlinPsiProcessor() {
         }
     }
 
-    override fun findReferences(element: PsiElement): Collection<PsiReference> {
+    override fun findReferences(
+        element: PsiElement,
+        searchScope: SearchScope,
+        searchInCommentsAndStrings: Boolean
+    ): Collection<PsiReference> {
+        val references = super.findReferences(element, searchScope, searchInCommentsAndStrings)
         if (element is KtObjectDeclaration && element.isCompanion()) {
-            return super.findReferences(element).filter { !it.isCompanionObjectClassReference() }
+            return references.filter { !it.isCompanionObjectClassReference() }
         }
-        return super.findReferences(element)
+        return references
     }
 
     private fun PsiReference.isCompanionObjectClassReference(): Boolean {

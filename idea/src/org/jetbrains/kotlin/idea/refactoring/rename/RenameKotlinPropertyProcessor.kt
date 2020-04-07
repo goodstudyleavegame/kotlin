@@ -88,8 +88,13 @@ class RenameKotlinPropertyProcessor : RenameKotlinPsiProcessor() {
         return getterName to setterName
     }
 
-    override fun findReferences(element: PsiElement): Collection<PsiReference> {
-        val allReferences = super.findReferences(element).filterNot { it is KtDestructuringDeclarationReference }
+    override fun findReferences(
+        element: PsiElement,
+        searchScope: SearchScope,
+        searchInCommentsAndStrings: Boolean
+    ): Collection<PsiReference> {
+        val allReferences =
+            super.findReferences(element, searchScope, searchInCommentsAndStrings).filterNot { it is KtDestructuringDeclarationReference }
         val (getterJvmName, setterJvmName) = getJvmNames(element)
         return when {
             getterJvmName == null && setterJvmName == null -> allReferences
