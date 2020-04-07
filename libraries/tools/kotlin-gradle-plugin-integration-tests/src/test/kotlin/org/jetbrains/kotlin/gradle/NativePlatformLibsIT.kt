@@ -40,14 +40,30 @@ class NativePlatformLibsIT : BaseGradleIT() {
         }
     }
 
+    private fun BaseGradleIT.Project.buildWithLightDist(vararg tasks: String, check: CompiledProject.() -> Unit) =
+        build(*tasks, "-Pkotlin.native.distribution.type=light", check = check)
+
     @Test
     fun testNoGenerationForOldCompiler() = with(platformLibrariesProject("linuxX64")) {
         deleteInstalledCompilers()
 
         // Check that we don't run the library generator for old compiler distributions where libraries are prebuilt.
         // Don't run the build to reduce execution time.
-        build("tasks", "-Pkotlin.native.version=1.3.60") {
+        build("tasks", "-Pkotlin.native.version=$oldCompilerVersion") {
             assertSuccessful()
+            assertContains("Unpack Kotlin/Native compiler to ")
+            assertNotContains("Generate platform libraries for ")
+        }
+    }
+
+    @Test
+    fun testNoGenerationByDefault() = with(platformLibrariesProject("linuxX64")) {
+        deleteInstalledCompilers()
+
+        // Check that a prebuilt distribution is used by default.
+        build("assemble") {
+            assertSuccessful()
+            assertContainsRegex("Kotlin/Native distribution: .*kotlin-native-prebuilt-(macos|linux|windows)".toRegex())
             assertNotContains("Generate platform libraries for ")
         }
     }
@@ -66,14 +82,14 @@ class NativePlatformLibsIT : BaseGradleIT() {
 
         with(rootProject) {
             // Check that platform libraries are correctly generated for both root project and a subproject.
-            build("assemble") {
+            buildWithLightDist("assemble", "-Pkotlin.native.") {
                 assertSuccessful()
                 assertContains("Generate platform libraries for linux_x64")
                 assertContains("Generate platform libraries for linux_arm64")
             }
 
             // Check that we don't generate libraries during a second run. Don't clean to reduce execution time.
-            build("assemble") {
+            buildWithLightDist("assemble") {
                 assertSuccessful()
                 assertNotContains("Generate platform libraries for ")
             }
@@ -89,7 +105,7 @@ class NativePlatformLibsIT : BaseGradleIT() {
             else -> KonanTarget.IOS_X64
         }
 
-        platformLibrariesProject(unsupportedTarget.presetName).build("assemble") {
+        platformLibrariesProject(unsupportedTarget.presetName).buildWithLightDist("assemble") {
             assertSuccessful()
             assertNotContains("Generate platform libraries for ")
         }
@@ -104,13 +120,13 @@ class NativePlatformLibsIT : BaseGradleIT() {
 
         with(platformLibrariesProject("iosX64")) {
             // Build Mac libraries without caches.
-            build("tasks") {
+            buildWithLightDist("tasks") {
                 assertSuccessful()
                 assertContains("Generate platform libraries for ios_x64")
             }
 
             // Change cache kind and check that platform libraries generator was executed.
-            build("tasks", "-Pkotlin.native.cacheKind=static") {
+            buildWithLightDist("tasks", "-Pkotlin.native.cacheKind=static") {
                 assertSuccessful()
                 assertContains("Precompile platform libraries for ios_x64 (precompilation: static)")
             }
@@ -133,7 +149,7 @@ class NativePlatformLibsIT : BaseGradleIT() {
         deleteInstalledCompilers()
 
         // Check that user can change generation mode used by the cinterop tool.
-        build("tasks", "-Pkotlin.native.platform.libraries.mode=metadata") {
+        buildWithLightDist("tasks", "-Pkotlin.native.platform.libraries.mode=metadata") {
             assertSuccessful()
             assertContainsRegex("Run tool: \"generatePlatformLibraries\" with args: .* -mode metadata".toRegex())
         }
@@ -144,13 +160,13 @@ class NativePlatformLibsIT : BaseGradleIT() {
         deleteInstalledCompilers()
 
         // Install the compiler at the first time. Don't build to reduce execution time.
-        build("tasks") {
+        buildWithLightDist("tasks") {
             assertSuccessful()
             assertContains("Generate platform libraries for linux_x64")
         }
 
         // Reinstall the compiler.
-        build("tasks", "-Pkotlin.native.reinstall=true") {
+        buildWithLightDist("tasks", "-Pkotlin.native.reinstall=true") {
             assertSuccessful()
             assertContains("Unpack Kotlin/Native compiler to ")
             assertContains("Generate platform libraries for linux_x64")
