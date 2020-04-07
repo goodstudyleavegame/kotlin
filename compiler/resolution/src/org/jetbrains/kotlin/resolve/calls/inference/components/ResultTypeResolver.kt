@@ -106,9 +106,8 @@ class ResultTypeResolver(
         return true
     }
 
-    private fun checkSingleLowerNullabilityConstraint(constraints: List<Constraint>): Boolean {
-        return constraints.singleOrNull { it.kind.isLower() }?.isNullabilityConstraint ?: false
-    }
+    private fun checkSingleLowerNullabilityConstraint(constraints: List<Constraint>) =
+        constraints.singleOrNull { it.kind.isLower() && it.isNullabilityConstraint } != null
 
     private fun Context.findSubType(variableWithConstraints: VariableWithConstraints): KotlinTypeMarker? {
         val lowerConstraintTypes = prepareLowerConstraints(variableWithConstraints.constraints)
